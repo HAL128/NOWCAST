@@ -191,9 +191,25 @@ def create_percentile_portfolio(df_yoy: pd.DataFrame, top_percentile: int, price
     returns_common = returns_common[common_columns].fillna(0)
     weighted_returns = weights_common * returns_common
     returns = weighted_returns.sum(axis=1).dropna()
+
+    print_portfolio_stocks_and_value(date_percentiles, price_data, top_percentile)
     
     return returns
 
+
+
+### ここから ===================================================
+### 合計初期投資額をprintするところから ==========================
+def print_portfolio_stocks_and_value(date_percentiles: pd.DataFrame, price_data: pd.DataFrame, top_percentile: int, initial_investment: float = 1000000, total_value: float = 0) -> None:
+    """
+    ポートフォリオに含まれた銘柄を全て挙げ、投資に必要な金額と現在の合計価値をprintする
+    """
+    print(f"ポートフォリオ銘柄数: {len(date_percentiles[date_percentiles['top_percentile'] == 1])}")
+    print(f"ポートフォリオに含まれた銘柄: {date_percentiles[date_percentiles['top_percentile'] == 1]['TICKER_CODE'].unique()}")
+    # print(f"合計投資額: {initial_investment:,.0f}円")
+    # print(f"現在の合計価値: {total_value:,.0f}円")
+    # print(f"ポートフォリオに含まれた銘柄の現在の合計価値: {total_value:,.0f}円")
+    # print(f"ポートフォリオに含まれた銘柄の現在の合計価値の割合: {total_value/initial_investment*100:.2f}%")
 
 
 
@@ -521,6 +537,77 @@ def get_topix_data():
     return df_topix_monthly
 
 
+
+
+
+def compare_to_past_month(df_yoy: pd.DataFrame, value_col: str) -> pd.DataFrame:
+    """
+    過去の月と比較する
+    """
+    # 過去3ヶ月の平均との比較
+    df_yoy['prev_n_months_avg'] = df_yoy.groupby('TICKER_CODE')[value_col].rolling(window=3).mean().reset_index(0, drop=True)
+    df_yoy['COMPARE_PAST_MONTH'] = df_yoy[value_col] - df_yoy['prev_n_months_avg']
+
+    # nanの削除
+    yoy_data_compare_past_month = df_yoy.dropna(subset=['COMPARE_PAST_MONTH'])
+
+    # 不要なカラムの削除
+    yoy_data_compare_past_month = yoy_data_compare_past_month.drop(columns=['prev_n_months_avg'])
+
+    return yoy_data_compare_past_month
+
+
+
+
+def get_stock_price_data_from_yfinance(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    yfinanceから株価データを取得する
+    """
+    tickers = df['TICKER_CODE'].unique()
+    
+    # set start date to April 2021
+    start_date = pd.to_datetime('1900-01-01')
+    end_date = pd.to_datetime(df['DATE'].max())
+    
+    price_data = pd.DataFrame()
+    failed_tickers = []
+    
+    # get stock prices for each ticker
+    for ticker in tickers:
+        try:
+            ticker_str = str(ticker).zfill(4) + '.T'
+            
+            # get stock prices and dividends
+            stock = yf.Ticker(ticker_str)
+            hist = stock.history(start=start_date, end=end_date, interval='1mo')
+            
+            if hist.empty:
+                print(f'No data available for {ticker}')
+                failed_tickers.append(ticker)
+                continue
+                
+            # organize data
+            hist = hist.reset_index()
+            hist['TICKER_CODE'] = ticker
+            hist['DATE'] = hist['Date'].dt.strftime('%Y-%m')
+            hist = hist[['DATE', 'TICKER_CODE', 'Close', 'Dividends']]
+            hist.columns = ['DATE', 'TICKER_CODE', 'price', 'dividends']
+            
+            # calculate monthly returns
+            hist['monthly_return'] = (hist['price'] + hist['dividends'].fillna(0)) / hist['price'].shift(1) - 1
+            
+            price_data = pd.concat([price_data, hist])
+            
+            print(f'Successfully fetched data for {ticker}')
+            time.sleep(1)  # Add delay to avoid rate limiting
+            
+        except Exception as e:
+            print(f'Failed to fetch data for {ticker}: {str(e)}')
+            failed_tickers.append(ticker)
+
+    success_rate = (len(tickers) - len(failed_tickers)) / len(tickers)
+    
+    return price_data, success_rate
 
 
 
