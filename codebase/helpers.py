@@ -1,3 +1,4 @@
+from tkinter import N
 import pandas as pd
 import numpy as np
 from datetime import datetime, date
@@ -106,8 +107,7 @@ def calculate_yoy(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
 
 
 
-
-def create_percentile_portfolio(df_yoy: pd.DataFrame, top_percentile: int, price_data: pd.DataFrame) -> pd.Series:
+def create_percentile_portfolio(df_yoy: pd.DataFrame, top_percentile: int, price_data: pd.DataFrame, col: str = 'YOY') -> pd.Series:
     """
     パーセンタイルベースのポートフォリオを作成する
     """
@@ -117,8 +117,8 @@ def create_percentile_portfolio(df_yoy: pd.DataFrame, top_percentile: int, price
     for month in df_yoy['MONTH'].unique():
         date_data = df_yoy[df_yoy['MONTH'] == month].copy()
         # 上位パーセンタイルを1、それ以外を0としてラベル付け
-        threshold = date_data['YOY'].quantile(1 - top_percentile/100)
-        date_data['top_percentile'] = (date_data['YOY'] >= threshold).astype(int)
+        threshold = date_data[col].quantile(1 - top_percentile/100)
+        date_data['top_percentile'] = (date_data[col] >= threshold).astype(int)
         percentile_data.append(date_data)
 
     percentile_df = pd.concat(percentile_data)
@@ -238,11 +238,40 @@ def create_multiple_portfolios(df_yoy: pd.DataFrame, price_data: pd.DataFrame, p
 
 
 
+def create_multiple_portfolios_compare_past_month(df_yoy: pd.DataFrame, price_data: pd.DataFrame, percentiles: List[int] = [25, 100]) -> pd.DataFrame:
+    """
+    複数のパーセンタイルポートフォリオを作成する
+    compare n monthと、percentileの掛け算全てをカラムとして保存
+    """
+    portfolio_returns = pd.DataFrame()
+
+    col_list = ['COMPARE_PAST_1_MONTHS', 'COMPARE_PAST_2_MONTHS', 'COMPARE_PAST_3_MONTHS', 'COMPARE_PAST_4_MONTHS', 'COMPARE_PAST_5_MONTHS', 'COMPARE_PAST_6_MONTHS', 'COMPARE_PAST_7_MONTHS', 'COMPARE_PAST_8_MONTHS', 'COMPARE_PAST_9_MONTHS', 'COMPARE_PAST_10_MONTHS', 'COMPARE_PAST_11_MONTHS', 'COMPARE_PAST_12_MONTHS']
+
+    for col in col_list:
+        for percentile in percentiles:
+            print(f"上位{percentile}%のポートフォリオを作成中... (比較期間: {col})")
+            returns = create_percentile_portfolio(
+                df_yoy, percentile, price_data, col=col
+            )
+            if not returns.empty:
+                # カラム名を一意にするため、比較期間とパーセンタイルの組み合わせを含める
+                col_name = f'top_{percentile}p_{col.lower()}'
+                portfolio_returns[col_name] = returns
+
+    # 共通の日付で揃える
+    if not portfolio_returns.empty:
+        common_dates = portfolio_returns.index
+        portfolio_returns = portfolio_returns.loc[common_dates]
+
+    return portfolio_returns
+
+
 
 
 def plot_portfolio_returns(portfolio_returns: pd.DataFrame, 
     market_neutral: bool = False,
-    title: str = 'Cumulative Return of Top Percentile Portfolios vs Equal Weight Portfolio'
+    title: str = 'Cumulative Return of Top Percentile Portfolios vs Equal Weight Portfolio',
+    y_max: int = 13
     ) -> None:
     """
     ポートフォリオリターンをプロットする
@@ -291,8 +320,8 @@ def plot_portfolio_returns(portfolio_returns: pd.DataFrame,
     plt.xticks(rotation=45)
 
     # y軸の範囲を-2から12に固定し、目盛りを奇数のみに設定
-    plt.ylim(-1, int(cumulative_returns.max()) + 2)
-    plt.yticks([i for i in range(1, int(cumulative_returns.max()) + 2, 2)])
+    plt.ylim(-1, y_max + 2)
+    plt.yticks([i for i in range(1, y_max + 2, 2)])
     plt.tight_layout()
     plt.show()
 
@@ -536,7 +565,7 @@ def get_topix_data():
     """
     end_date = datetime.now().date()
 
-    df_topix = web.DataReader('^TPX', 'stooq', '1900-01-01', end_date)
+    df_topix = web.DataReader('^TPX', 'stooq', '2000-01-01', end_date)
 
     # 月次平均を計算
     topix_monthly = df_topix['Close'].resample('M').mean()
@@ -555,17 +584,18 @@ def compare_to_past_month(df_yoy: pd.DataFrame, value_col: str) -> pd.DataFrame:
     """
     過去の月と比較する
     """
+    for month in range(1, 13):
     # 過去3ヶ月の平均との比較
-    df_yoy['prev_n_months_avg'] = df_yoy.groupby('TICKER_CODE')[value_col].rolling(window=3).mean().reset_index(0, drop=True)
-    df_yoy['COMPARE_PAST_MONTH'] = df_yoy[value_col] - df_yoy['prev_n_months_avg']
+        df_yoy[f'prev_{month}_months_avg'] = df_yoy.groupby('TICKER_CODE')[value_col].rolling(window=month).mean().reset_index(0, drop=True)
+        df_yoy[f'COMPARE_PAST_{month}_MONTHS'] = df_yoy[value_col] - df_yoy[f'prev_{month}_months_avg']
 
-    # nanの削除
-    yoy_data_compare_past_month = df_yoy.dropna(subset=['COMPARE_PAST_MONTH'])
+        # nanの削除
+        df_yoy = df_yoy.dropna(subset=[f'COMPARE_PAST_{month}_MONTHS'])
 
-    # 不要なカラムの削除
-    yoy_data_compare_past_month = yoy_data_compare_past_month.drop(columns=['prev_n_months_avg'])
+        # 不要なカラムの削除
+        df_yoy = df_yoy.drop(columns=[f'prev_{month}_months_avg'])
 
-    return yoy_data_compare_past_month
+    return df_yoy
 
 
 
