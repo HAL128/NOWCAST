@@ -241,7 +241,9 @@ def create_multiple_portfolios(df_yoy: pd.DataFrame, price_data: pd.DataFrame, p
 
 
 def plot_portfolio_returns(portfolio_returns: pd.DataFrame, 
-                          title: str = 'Cumulative Return of Top Percentile Portfolios vs Equal Weight Portfolio') -> None:
+    market_neutral: bool = False,
+    title: str = 'Cumulative Return of Top Percentile Portfolios vs Equal Weight Portfolio'
+    ) -> None:
     """
     ポートフォリオリターンをプロットする
     
@@ -256,21 +258,30 @@ def plot_portfolio_returns(portfolio_returns: pd.DataFrame,
 
     plt.figure(figsize=(15, 6))
     
-    # 等ウェイトを最初にプロット（ベースラインとして）
-    if 'top_100p' in portfolio_returns.columns:
-        cumulative_returns = (1 + portfolio_returns['top_100p']).cumprod()
-        cumulative_returns = cumulative_returns / cumulative_returns.iloc[0]
-        plt.plot(portfolio_returns.index, cumulative_returns, 
-                label='Equal Weight (All Stocks)', color='#808080', linewidth=2.5)
-    
-    # その他のポートフォリオをプロット
-    for col in portfolio_returns.columns:
-        if col != 'top_100p':  # 等ウェイトは既にプロット済み
-            # 累計リターンを計算
-            cumulative_returns = (1 + portfolio_returns[col]).cumprod()
-            # 初月が1になるように調整
+    if not market_neutral:
+        # 等ウェイトを最初にプロット（ベースラインとして）
+        if 'top_100p' in portfolio_returns.columns:
+            cumulative_returns = (1 + portfolio_returns['top_100p']).cumprod()
             cumulative_returns = cumulative_returns / cumulative_returns.iloc[0]
-            plt.plot(portfolio_returns.index, cumulative_returns, label=col)
+            plt.plot(portfolio_returns.index, cumulative_returns, 
+                    label='Equal Weight (All Stocks)', color='#808080', linewidth=2.5)
+        
+        # その他のポートフォリオをプロット
+        for col in portfolio_returns.columns:
+            if col != 'top_100p':  # 等ウェイトは既にプロット済み
+                # 累計リターンを計算
+                cumulative_returns = (1 + portfolio_returns[col]).cumprod()
+                # 初月が1になるように調整
+                cumulative_returns = cumulative_returns / cumulative_returns.iloc[0]
+                plt.plot(portfolio_returns.index, cumulative_returns, label=col)
+    
+    elif market_neutral:
+        for col in portfolio_returns.columns:
+            if col != 'top_100p':
+                benchmark_returns = portfolio_returns[col] - portfolio_returns['top_100p']
+                benchmark_cumulative_returns = (1 + benchmark_returns).cumprod()
+                cumulative_returns = benchmark_cumulative_returns / benchmark_cumulative_returns.iloc[0]
+                plt.plot(portfolio_returns.index, cumulative_returns, label=col)
 
     plt.title(title)
     plt.xlabel('Date')
@@ -280,8 +291,8 @@ def plot_portfolio_returns(portfolio_returns: pd.DataFrame,
     plt.xticks(rotation=45)
 
     # y軸の範囲を-2から12に固定し、目盛りを奇数のみに設定
-    plt.ylim(-1, 13)
-    plt.yticks([i for i in range(1, 13, 2)])
+    plt.ylim(-1, int(cumulative_returns.max()) + 2)
+    plt.yticks([i for i in range(1, int(cumulative_returns.max()) + 2, 2)])
     plt.tight_layout()
     plt.show()
 
