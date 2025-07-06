@@ -237,12 +237,41 @@
             [UPDATE]
                 2025/07/05
 
+        - Price_Data
+            [COLUMN]
+                DATE:
+                    TERM: 2013/01 - 2025/06
+                    FORMAT: YYYY-MM
+                TICKER:
+                    ティッカーコード
+                PRICE:
+                    株価
+                DIVIDENDS:
+                    各月配当
+                MONTHLY_RETURN:
+                    月次リターン
+            [SOURCE]
+                yfinance
+            [ACQUISITION]
+                1. get_price_data.ipynb を実行
 
+            << price_data_for_cca >>
+                [DESCRIPTION]
+                    yfinanceから取得した各銘柄の株価と、配当込みの月次リターン
+                    CCA分析用(該当データに含まれる銘柄のprice data)
+                    fill rate = 92.0%
+                [UPDATE]
+                    2025/07/07
 
+            << price_data_for_pos >>
+                [DESCRIPTION]
+                    yfinanceから取得した各銘柄の株価と、配当込みの月次リターン
+                    POS分析用(該当データに含まれる銘柄のprice data)
+                    fill rate = 90.1%
+                [UPDATE]
+                    2025/07/07
 
-
-
-
+            
 
         - price_data_with_dividends_from_yfinance_06262025.csv
             yfinanceから取ってきた、日本企業の配当込みの月次リターン

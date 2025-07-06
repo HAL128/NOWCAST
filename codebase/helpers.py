@@ -23,7 +23,7 @@ warnings.filterwarnings('ignore')
 def filter_data_cca(df: pd.DataFrame, four_digit_ticker: bool = True, start_date: Optional[str] = None) -> pd.DataFrame:
     """
     データを読み込み、4桁の数字のティッカーコードでフィルタリングする
-    REQ COLS: DATE, TICKER_CODE
+    REQ COLS: DATE, TICKER
     """
     df_filtered = df.copy()
 
@@ -34,7 +34,7 @@ def filter_data_cca(df: pd.DataFrame, four_digit_ticker: bool = True, start_date
                 return x.isdigit() and len(x) == 4
             return False
     
-        df_filtered = df_filtered[df_filtered['TICKER_CODE'].apply(is_four_digit_number)]
+        df_filtered = df_filtered[df_filtered['TICKER'].apply(is_four_digit_number)]
 
     # 日付範囲でフィルタリング
     end_date = datetime.now().strftime('%Y-%m-%d')
@@ -57,14 +57,14 @@ def filter_data_cca(df: pd.DataFrame, four_digit_ticker: bool = True, start_date
 def daily_to_monthly(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
     """
     日次データを月次データに変換する
-    REQ COLS: DATE, TICKER_CODE, value_col
+    REQ COLS: DATE, TICKER, value_col
     """
     df_monthly = df.copy()
 
     df_monthly['year-month'] = df_monthly['DATE'].dt.to_period('M')
 
     # 月次合計
-    df_monthly = df_monthly.groupby(['year-month', 'TICKER_CODE'])[value_col].sum().reset_index()
+    df_monthly = df_monthly.groupby(['year-month', 'TICKER'])[value_col].sum().reset_index()
     df_monthly.rename(columns={'year-month': 'MONTH'}, inplace=True)
 
     # 最後の月のデータを削除
@@ -83,12 +83,12 @@ def daily_to_monthly(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
 def calculate_yoy(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
     """
     YoYを計算する
-    REQ COLS: MONTH, TICKER_CODE, value_col
+    REQ COLS: MONTH, TICKER, value_col
     """
     df_yoy = df.copy()
 
     # growth rateのYoY
-    df_yoy['prev_year_value'] = df_yoy.groupby('TICKER_CODE')[value_col].shift(12)
+    df_yoy['prev_year_value'] = df_yoy.groupby('TICKER')[value_col].shift(12)
     df_yoy['YOY'] = df_yoy[value_col] / df_yoy['prev_year_value']
     df_yoy = df_yoy.dropna(subset=['YOY'])
 
@@ -136,7 +136,7 @@ def create_percentile_portfolio(df_yoy: pd.DataFrame, top_percentile: int, price
             for _, row in top_stocks.iterrows():
                 portfolio_weights.append({
                     'MONTH': month, 
-                    'TICKER_CODE': row['TICKER_CODE'], 
+                    'TICKER': row['TICKER'], 
                     f'top_{top_percentile}p': weight
                 })
 
@@ -146,7 +146,7 @@ def create_percentile_portfolio(df_yoy: pd.DataFrame, top_percentile: int, price
 
     portfolio_weights_df = portfolio_weights_df.fillna(0)
 
-    # MONTH, TICKER_CODE型統一
+    # MONTH, TICKER型統一
     # Period objects need to be converted using to_timestamp() first
     if hasattr(portfolio_weights_df['MONTH'].iloc[0], 'to_timestamp'):
         portfolio_weights_df['MONTH'] = portfolio_weights_df['MONTH'].dt.to_timestamp().dt.strftime('%Y-%m')
@@ -169,14 +169,14 @@ def create_percentile_portfolio(df_yoy: pd.DataFrame, top_percentile: int, price
         else:
             price_data_copy['MONTH'] = pd.to_datetime(price_data_copy['MONTH']).dt.strftime('%Y-%m')
 
-    portfolio_weights_df['TICKER_CODE'] = portfolio_weights_df['TICKER_CODE'].astype(str)
-    price_data_copy['TICKER_CODE'] = price_data_copy['TICKER_CODE'].astype(str)
+    portfolio_weights_df['TICKER'] = portfolio_weights_df['TICKER'].astype(str)
+    price_data_copy['TICKER'] = price_data_copy['TICKER'].astype(str)
 
     # リターンマトリックス
-    returns_matrix = price_data_copy.pivot(index='MONTH', columns='TICKER_CODE', values='MONTHLY_RETURN')
+    returns_matrix = price_data_copy.pivot(index='MONTH', columns='TICKER', values='MONTHLY_RETURN')
 
     # ポートフォリオリターン計算
-    weights = portfolio_weights_df.pivot(index='MONTH', columns='TICKER_CODE', values=f'top_{top_percentile}p')
+    weights = portfolio_weights_df.pivot(index='MONTH', columns='TICKER', values=f'top_{top_percentile}p')
     common_dates = weights.index.intersection(returns_matrix.index)
     # if len(common_dates) == 0:
     #     return pd.Series(dtype=float)
@@ -205,7 +205,7 @@ def print_portfolio_stocks_and_value(date_percentiles: pd.DataFrame, price_data:
     ポートフォリオに含まれた銘柄を全て挙げ、投資に必要な金額と現在の合計価値をprintする
     """
     print(f"ポートフォリオ銘柄数: {len(date_percentiles[date_percentiles['top_percentile'] == 1])}")
-    print(f"ポートフォリオに含まれた銘柄: {date_percentiles[date_percentiles['top_percentile'] == 1]['TICKER_CODE'].unique()}")
+    print(f"ポートフォリオに含まれた銘柄: {date_percentiles[date_percentiles['top_percentile'] == 1]['TICKER'].unique()}")
     # print(f"合計投資額: {initial_investment:,.0f}円")
     # print(f"現在の合計価値: {total_value:,.0f}円")
     # print(f"ポートフォリオに含まれた銘柄の現在の合計価値: {total_value:,.0f}円")
@@ -450,7 +450,7 @@ def generate_analysis_summary(portfolio_returns: pd.DataFrame,
     """
     print("=== 分析結果サマリー ===")
     print(f"分析期間: {portfolio_returns.index[0]} から {portfolio_returns.index[-1]}")
-    print(f"対象銘柄数: {len(monthly_total['TICKER_CODE'].unique())}")
+    print(f"対象銘柄数: {len(monthly_total['TICKER'].unique())}")
     print(f"分析したポートフォリオ: {list(portfolio_returns.columns)}")
 
     # 等ウェイトポートフォリオとの比較
@@ -586,7 +586,7 @@ def compare_to_past_month(df_yoy: pd.DataFrame, value_col: str) -> pd.DataFrame:
     """
     for month in range(1, 13):
     # 過去3ヶ月の平均との比較
-        df_yoy[f'prev_{month}_months_avg'] = df_yoy.groupby('TICKER_CODE')[value_col].rolling(window=month).mean().reset_index(0, drop=True)
+        df_yoy[f'prev_{month}_months_avg'] = df_yoy.groupby('TICKER')[value_col].rolling(window=month).mean().reset_index(0, drop=True)
         df_yoy[f'COMPARE_PAST_{month}_MONTHS'] = df_yoy[value_col] - df_yoy[f'prev_{month}_months_avg']
 
         # nanの削除
@@ -604,9 +604,8 @@ def get_stock_price_data_from_yfinance(df: pd.DataFrame) -> pd.DataFrame:
     """
     yfinanceから株価データを取得する
     """
-    tickers = df['TICKER_CODE'].unique()
+    tickers = df['TICKER'].unique()
     
-    # set start date to April 2021
     start_date = pd.to_datetime('1900-01-01')
     end_date = pd.to_datetime(df['DATE'].max())
     
@@ -629,10 +628,10 @@ def get_stock_price_data_from_yfinance(df: pd.DataFrame) -> pd.DataFrame:
                 
             # organize data
             hist = hist.reset_index()
-            hist['TICKER_CODE'] = ticker
+            hist['TICKER'] = ticker
             hist['DATE'] = hist['Date'].dt.strftime('%Y-%m')
-            hist = hist[['DATE', 'TICKER_CODE', 'Close', 'Dividends']]
-            hist.columns = ['DATE', 'TICKER_CODE', 'price', 'dividends']
+            hist = hist[['DATE', 'TICKER', 'Close', 'Dividends']]
+            hist.columns = ['DATE', 'TICKER', 'price', 'dividends']
             
             # calculate monthly returns
             hist['monthly_return'] = (hist['price'] + hist['dividends'].fillna(0)) / hist['price'].shift(1) - 1
