@@ -1,243 +1,193 @@
-- LOCAL / PCにcsv形式で保存されているデータ
-    - DATAHUB
-        - Fama-French
+- DATAHUB
+    - Fama-French
+        - F-F_Research_Data_Factors_daily / Fama-French ファクターリターン (日次)
+            [COLUMN]
+                DATE:
+                    TERM: 1926/07/01 - 2025/04/30
+                    FORMAT: YYYYMMDD
+                MKT-RF:
+                    市場リスクプレミアム
+                    市場全体のリターン(時価総額加重平均)から無リスク利子率(RF)を差し引いた値
+                    Fama-French 3ファクターモデルの「Market」ファクターに該当
+                SMB:
+                    サイズファクター
+                    小型株(Small)と大型株(Big)のリターン差(Small Minus Big)
+                    時価総額で分割したポートフォリオのリターン差を表す
+                HML:
+                    バリューファクター
+                    簿価/時価比率の高い株(High)と低い株(Low)のリターン差(High Minus Low)
+                    バリュー株とグロース株のリターン差を表す
+                RF:
+                    無リスク利子率
+                    米国1ヶ月物Tビルの単純日次利回り
+                    2024年5月まではIbbotson Associates、2024年6月以降はICE BofA US 1-Month Treasury Bill Indexを使用
             [DESCRIPTION]
+                日次のファクターリターン
                 リターンは%表記なので、100で割る必要がある
                 全てUSD建リターンのため、日本株のリターンを円ベースで計算するためには、ドル円レート・日本の短期国債証券の利回りのデータが別に必要
                 This file was created by using the 202504 CRSP database.
+                The Tbill return is the simple monthly rate that, over the number of trading days compounds to 1-month TBill rate. The 1-month TBill rate data until 202405 are from Ibbotson Associates. Starting from 202406, the 1-month TBill rate is from ICE BofA US 1-Month Treasury Bill Index.
             [SOURCE]
                 ケネスフレンチ
+            [ACQUISITION]
+                1. https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html
+                2. 3ファクターモデルの場合、Fama/French 3 Factors [Daily]
+                5ファクターモデルの場合、Fama/French 5 Factors (2×3) [Daily] をクリック
             [REFERENCE]
                 Kibera: https://finatextgroup.kibe.la/notes/37281
-
-            << F-F_Research_Data_Factors_daily >>
+            [UPDATE]
+                2025/07/04
+        - F-F_Research_Data_Factors_monthly / Fama-French ファクターリターン (月次)
+            [COLUMN]
+                DATE:
+                    TERM: 1926/07 - 2025/04
+                    FORMAT: YYYYMM
+                MKT-RF:
+                    市場リスクプレミアム
+                    市場全体のリターン(時価総額加重平均)から無リスク利子率(RF)を差し引いた値
+                    Fama-French 3ファクターモデルの「Market」ファクターに該当
+                SMB:
+                    サイズファクター
+                    小型株(Small)と大型株(Big)のリターン差(Small Minus Big)
+                    時価総額で分割したポートフォリオのリターン差を表す
+                HML:
+                    バリューファクター
+                    簿価/時価比率の高い株(High)と低い株(Low)のリターン差(High Minus Low)
+                    バリュー株とグロース株のリターン差を表す
+                RF:
+                    無リスク利子率
+                    米国1ヶ月物Tビルの単純日次利回り
+                    2024年5月まではIbbotson Associates、2024年6月以降はICE BofA US 1-Month Treasury Bill Indexを使用
+            [DESCRIPTION]
+                月次のファクターリターン
+                リターンは%表記なので、100で割る必要がある
+                全てUSD建リターンのため、日本株のリターンを円ベースで計算するためには、ドル円レート・日本の短期国債証券の利回りのデータが別に必要
+                This file was created by using the 202504 CRSP database.
+                The Tbill return is the simple monthly rate that, over the number of trading days compounds to 1-month TBill rate. The 1-month TBill rate data until 202405 are from Ibbotson Associates. Starting from 202406, the 1-month TBill rate is from ICE BofA US 1-Month Treasury Bill Index.
+            [SOURCE]
+                ケネスフレンチ
+            [ACQUISITION]
+                1. https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html
+                2. 3ファクターモデルの場合、Fama/French 3 Factors
+                5ファクターモデルの場合、Fama/French 5 Factors (2×3) クリック
+            [REFERENCE]
+                Kibera: https://finatextgroup.kibe.la/notes/37281
+            [UPDATE]
+                2025/07/04
+    - job_postings_tracker-master
+        - US
+            - aggregate_job_postings_US / 米国雇用統計 (国レベル)
                 [COLUMN]
                     DATE:
-                        TERM: 1926/07/01 - 2025/04/30
-                        FORMAT: YYYYMMDD
-                    MKT-RF:
-                        市場リスクプレミアム
-                        市場全体のリターン(時価総額加重平均)から無リスク利子率(RF)を差し引いた値
-                        Fama-French 3ファクターモデルの「Market」ファクターに該当
-                    SMB:
-                        サイズファクター
-                        小型株(Small)と大型株(Big)のリターン差(Small Minus Big)
-                        時価総額で分割したポートフォリオのリターン差を表す
-                    HML:
-                        バリューファクター
-                        簿価/時価比率の高い株(High)と低い株(Low)のリターン差(High Minus Low)
-                        バリュー株とグロース株のリターン差を表す
-                    RF:
-                        無リスク利子率
-                        米国1ヶ月物Tビルの単純日次利回り
-                        2024年5月まではIbbotson Associates、2024年6月以降はICE BofA US 1-Month Treasury Bill Indexを使用
+                        TERM: 2020/02/01 - 2025/06/27
+                        FORMAT: YYYY-MM-DD
+                    JOBCOUNTRY:
+                        ISO 3166-1 alpha-2 country code
+                    INDEED_JOB_POSTINGS_INDEX_SA:
+                        % change in seasonally-adjusted postings since February 1, 2020
+                    INDEED_JOB_POSTINGS_INDEX_NSA:
+                        % change in non-seasonally adjusted postings since February 1, 2020
+                    VARIABLE:
+                        Total or new (on Indeed for 7 days or fewer) job postings
                 [DESCRIPTION]
-                    日次のファクターリターン
-                    The Tbill return is the simple monthly rate that, over the number of trading days compounds to 1-month TBill rate. The 1-month TBill rate data until 202405 are from Ibbotson Associates. Starting from 202406, the 1-month TBill rate is from ICE BofA US 1-Month Treasury Bill Index.
+                    国レベル
+                    Indeed Hiring Labの求人情報インデックスデータ製品の基盤となるデータ
+                    データは毎日提供され、毎週更新されます
+                    2020年2月1日以降の季節調整済み求人件数の7日間平均を用いたパーセンテージ変化率
+                    101は、求人件数全体が2020年2月1日時点の水準より1%上昇していることを意味します
+                    ドイツ連邦銀行が日次時系列データ向けに開発した手法を用いて、各系列を毎日季節調整しています
+                [SOURCE]
+                    Indeed
                 [ACQUISITION]
-                    1. https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html
-                    2. 3ファクターモデルの場合、Fama/French 3 Factors [Daily]
-                    5ファクターモデルの場合、Fama/French 5 Factors (2×3) [Daily] をクリック
+                    1. https://github.com/hiring-lab/job_postings_tracker/tree/master
+                    2. ZIPをダウンロード
                 [UPDATE]
                     2025/07/04
-
-            << F-F_Research_Data_Factors_monthly >>
+            - job_postings_by_sector_US / 米国雇用統計 (セクターレベル)
                 [COLUMN]
                     DATE:
-                        TERM: 1926/07 - 2025/04
-                        FORMAT: YYYYMM
-                    MKT-RF:
-                        市場リスクプレミアム
-                        市場全体のリターン(時価総額加重平均)から無リスク利子率(RF)を差し引いた値
-                        Fama-French 3ファクターモデルの「Market」ファクターに該当
-                    SMB:
-                        サイズファクター
-                        小型株(Small)と大型株(Big)のリターン差(Small Minus Big)
-                        時価総額で分割したポートフォリオのリターン差を表す
-                    HML:
-                        バリューファクター
-                        簿価/時価比率の高い株(High)と低い株(Low)のリターン差(High Minus Low)
-                        バリュー株とグロース株のリターン差を表す
-                    RF:
-                        無リスク利子率
-                        米国1ヶ月物Tビルの単純日次利回り
-                        2024年5月まではIbbotson Associates、2024年6月以降はICE BofA US 1-Month Treasury Bill Indexを使用
+                        TERM: 2020/02/01 - 2025/06/27
+                        FORMAT: YYYY-MM-DD
+                    JOBCOUNTRY:
+                        ISO 3166-1 alpha-2 country code
+                    INDEED_JOB_POSTINGS_INDEX:
+                        % change in seasonally-adjusted postings since February 1, 2020
+                    VARIABLE:
+                        total or new (on Indeed for 7 days or fewer) job postings
+                    DISPLAY_NAME:
+                        Occupational sector label
                 [DESCRIPTION]
-                    月次のファクターリターン
-                    The Tbill return is the simple monthly rate that, over the number of trading days compounds to 1-month TBill rate. The 1-month TBill rate data until 202405 are from Ibbotson Associates. Starting from 202406, the 1-month TBill rate is from ICE BofA US 1-Month Treasury Bill Index.
+                    セクターレベル
+                    Indeed Hiring Labの求人情報インデックスデータ製品の基盤となるデータ
+                    データは毎日提供され、毎週更新されます
+                    2020年2月1日以降の季節調整済み求人件数の7日間平均を用いたパーセンテージ変化率
+                    101は、求人件数全体が2020年2月1日時点の水準より1%上昇していることを意味します
+                    ドイツ連邦銀行が日次時系列データ向けに開発した手法を用いて、各系列を毎日季節調整しています
+                [SOURCE]
+                    Indeed
                 [ACQUISITION]
-                    1. https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html
-                    2. 3ファクターモデルの場合、Fama/French 3 Factors
-                    5ファクターモデルの場合、Fama/French 5 Factors (2×3) クリック
+                    1. https://github.com/hiring-lab/job_postings_tracker/tree/master
+                    2. ZIPをダウンロード
                 [UPDATE]
                     2025/07/04
-
-        - job_postings_tracker-master
-            [DESCRIPTION]
-                Indeed Hiring Labの求人情報インデックスデータ製品の基盤となるデータ
-                データは毎日提供され、毎週更新されます
-                2020年2月1日以降の季節調整済み求人件数の7日間平均を用いたパーセンテージ変化率
-                101は、求人件数全体が2020年2月1日時点の水準より1%上昇していることを意味します
-                ドイツ連邦銀行が日次時系列データ向けに開発した手法を用いて、各系列を毎日季節調整しています
-            [SOURCE]
-                Indeed
-            [ACQUISITION]
-                1. https://github.com/hiring-lab/job_postings_tracker/tree/master
-                2. ZIPをダウンロード
-            [UPDATE]
-                2025/07/04
-
-            << sector-job-title-examples >>
+            - metro_job_postings_us / 米国雇用統計 (地域レベル)
                 [COLUMN]
-                    SECTOR:
-                        職種
-                    JOB_TITLES: 
-                        サンプル職名
+                    DATE:
+                        TERM: 2020/02/01 - 2025/06/27
+                        FORMAT: YYYY-MM-DD
+                    METRO:
+                        US metropolitan areas with a population of at least 500,000 people
+                    CBSA_CODE:
+                        Core-based statistical area (CBSA) code
+                    INDEED_JOB_POSTINGS_INDEX:
+                        % change in seasonally-adjusted postings since February 1, 2020
                 [DESCRIPTION]
-                    Indeedが正規化した職名に基づいた職業分類
-
-            - US
-                << aggregate_job_postings_US >>
-                    [COLUMN]
-                        DATE:
-                            TERM: 2020/02/01 - 2025/06/27
-                            FORMAT: YYYY-MM-DD
-                        JOBCOUNTRY:
-                            ISO 3166-1 alpha-2 country code
-                        INDEED_JOB_POSTINGS_INDEX_SA:
-                            % change in seasonally-adjusted postings since February 1, 2020
-                        INDEED_JOB_POSTINGS_INDEX_NSA:
-                            % change in non-seasonally adjusted postings since February 1, 2020
-                        VARIABLE:
-                            Total or new (on Indeed for 7 days or fewer) job postings
-                    [DESCRIPTION]
-                        国レベル
-
-                << job_postings_by_sector_US >>
-                    [COLUMN]
-                        DATE:
-                            TERM: 2020/02/01 - 2025/06/27
-                            FORMAT: YYYY-MM-DD
-                        JOBCOUNTRY:
-                            ISO 3166-1 alpha-2 country code
-                        INDEED_JOB_POSTINGS_INDEX:
-                            % change in seasonally-adjusted postings since February 1, 2020
-                        VARIABLE:
-                            total or new (on Indeed for 7 days or fewer) job postings
-                        DISPLAY_NAME:
-                            Occupational sector label
-                    [DESCRIPTION]
-                        セクターレベル
-
-                << metro_job_postings_us >>
-                    [COLUMN]
-                        DATE:
-                            TERM: 2020/02/01 - 2025/06/27
-                            FORMAT: YYYY-MM-DD
-                        METRO:
-                            US metropolitan areas with a population of at least 500,000 people
-                        CBSA_CODE:
-                            Core-based statistical area (CBSA) code
-                        INDEED_JOB_POSTINGS_INDEX:
-                            % change in seasonally-adjusted postings since February 1, 2020
-                    [DESCRIPTION]
-                        地域レベル
-                        
-                << state_job_postings_us >>
-                    [COLUMN]
-                        DATE:
-                            TERM: 2020/02/01 - 2025/06/27
-                            FORMAT: YYYY-MM-DD
-                        STATE:
-                            州
-                        INDEED_JOB_POSTINGS_INDEX:
-                            % change in seasonally-adjusted postings since February 1, 2020
-                    [DESCRIPTION]
-                        州レベル
-
-        << nme_R031.461815.20250704110210.01 >>
+                    地域レベル
+                    Indeed Hiring Labの求人情報インデックスデータ製品の基盤となるデータ
+                    データは毎日提供され、毎週更新されます
+                    2020年2月1日以降の季節調整済み求人件数の7日間平均を用いたパーセンテージ変化率
+                    101は、求人件数全体が2020年2月1日時点の水準より1%上昇していることを意味します
+                    ドイツ連邦銀行が日次時系列データ向けに開発した手法を用いて、各系列を毎日季節調整しています
+                [SOURCE]
+                    Indeed
+                [ACQUISITION]
+                    1. https://github.com/hiring-lab/job_postings_tracker/tree/master
+                    2. ZIPをダウンロード
+                [UPDATE]
+                    2025/07/04
+            - state_job_postings_us / 米国雇用統計 (州レベル)
+                [COLUMN]
+                    DATE:
+                        TERM: 2020/02/01 - 2025/06/27
+                        FORMAT: YYYY-MM-DD
+                    STATE:
+                        州
+                    INDEED_JOB_POSTINGS_INDEX:
+                        % change in seasonally-adjusted postings since February 1, 2020
+                [DESCRIPTION]
+                    州レベル
+                    Indeed Hiring Labの求人情報インデックスデータ製品の基盤となるデータ
+                    データは毎日提供され、毎週更新されます
+                    2020年2月1日以降の季節調整済み求人件数の7日間平均を用いたパーセンテージ変化率
+                    101は、求人件数全体が2020年2月1日時点の水準より1%上昇していることを意味します
+                    ドイツ連邦銀行が日次時系列データ向けに開発した手法を用いて、各系列を毎日季節調整しています
+                [SOURCE]
+                    Indeed
+                [ACQUISITION]
+                    1. https://github.com/hiring-lab/job_postings_tracker/tree/master
+                    2. ZIPをダウンロード
+                [UPDATE]
+                    2025/07/04
+        - sector-job-title-examples / Indeedが正規化した職名に基づいた職業分類
             [COLUMN]
-                DATE:
-                    TERM: 1973/01 - 2025/06
-                    FORMAT: YYYY/MM
-                JPY/USD:
-                    ドル円レート
+                SECTOR:
+                    職種
+                JOB_TITLES: 
+                    サンプル職名
             [DESCRIPTION]
-                過去のドル円レート
-            [SOURCE]
-                日本銀行
-            [ACQUISITION]
-                1. https://www.boj.or.jp/statistics/market/forex/fxdaily/index.htm
-                2. 「時系列統計データ検索サイト」リンク
-                3. 外国為替相場状況 (月次)
-                4. (1) インターバンク相場
-                5. FM08'FXERM06 (東京市場　ドル・円　スポット　17時時点/月末)
-            [REFERENCE]
-                Kibera: https://finatextgroup.kibe.la/notes/37281
-            [UPDATE]
-                2025/07/04
-
-        << GTJPY3M_Govt_short-term_Treasury_yield >>
-            [COLUMN]
-                DATE:
-                    TERM: 2010/01/04 - 2024/12/05
-                    FORMAT: YYYY/MM/DD
-                PX_LAST: 
-                    EXP: 最終価格 (ただし短期国債の利回りデータの場合、このカラムも利回りを示すことが多い)
-                YLD_YTM_MYLD: 
-                    EXP: Mid Yield To Maturity (満期までの中間利回り、いわゆる「中値利回り」)
-                YTM_BID: 
-                    Bid Yield To Maturity (満期までの買い気配利回り)
-            [DESCRIPTION]
-                GTJPY3M Govt (3か月短期国債ジェネリック) の利回り
-                取得した短期国債利回りは年率なので、ファクター分析に適用するためには月次ベースに直す必要がある >> 1/12乗根を取る
-            [SOURCE]
-                Bloomberg / Kibera
-            [ACQUISITION]
-                1. https://finatextgroup.kibe.la/notes/37281
-                2. 短期国債利回.xlsx リンク
-            [REFERENCE]
-                Kibera: https://finatextgroup.kibe.la/notes/37281
-            [UPDATE]
-                2025/07/04
-
-        << 1577b043-c0fb-46e7-8eb1-cf678acda511 >>
-            [COLUMN]
-                DATE:
-                    TERM: 2014/01 - 2025/06
-                    FORMAT: "YYYY-MM"
-                TICKER:
-                    ティッカーコード
-                    str
-                    外資系企業含む
-                TOTAL_SALES:
-                    月次売上(円)
-                    str
-            [DESCRIPTION]
-                日経POSデータ
-            [ACQUISITION]
-                1. AWS Athena
-                2. データソース: AwsDataCatalog
-                   データベース: alternadata_report
-                   テーブル: nikkei_3_0_202505_daily_ticker_all_transaction
-                3. SQL実行
-                    ==============================
-                    select
-                        date_format(date, '%Y-%m') as month,
-                        ticker_code,
-                        sum(sales) as total_sales
-                    from nikkei_3_0_202505_daily_ticker_all_transaction 
-                    group by
-                        ticker_code,
-                        date_format(date, '%Y-%m')
-                    order by
-                        ticker_code,
-                        month;
-                    ==============================
-            [UPDATE]
-                2025/07/05
-
-        - Price_Data
+                Indeedが正規化した職名に基づいた職業分類
+    - Price_Data
+        - price_data_for_cca / 各銘柄の配当込みの月次リターン for CCA
             [COLUMN]
                 DATE:
                     TERM: 2013/01 - 2025/06
@@ -250,83 +200,176 @@
                     各月配当
                 MONTHLY_RETURN:
                     月次リターン
+            [DESCRIPTION]
+                yfinanceから取得した各銘柄の株価と、配当込みの月次リターン
+                CCA分析用(該当データに含まれる銘柄のprice data)
+                fill rate = 92.0%
             [SOURCE]
                 yfinance
             [ACQUISITION]
                 1. get_price_data.ipynb を実行
-
-            << price_data_for_cca >>
-                [DESCRIPTION]
-                    yfinanceから取得した各銘柄の株価と、配当込みの月次リターン
-                    CCA分析用(該当データに含まれる銘柄のprice data)
-                    fill rate = 92.0%
-                [UPDATE]
-                    2025/07/07
-
-            << price_data_for_pos >>
-                [DESCRIPTION]
-                    yfinanceから取得した各銘柄の株価と、配当込みの月次リターン
-                    POS分析用(該当データに含まれる銘柄のprice data)
-                    fill rate = 90.1%
-                [UPDATE]
-                    2025/07/07
-
-            
-
-        - price_data_with_dividends_from_yfinance_06262025.csv
-            yfinanceから取ってきた、日本企業の配当込みの月次リターン
-            - COL
-                month: 201401~202506
-                ticker_code: 4figures (日本企業のみ)
-                price: 株価
-                dividends: 配当
-                monthly_return: 月次リターン (配当込み)
-
-        - cca_06262025.csv
-            - COL
-
-
-
-        - Template
+            [UPDATE]
+                2025/07/07
+        - price_data_for_pos / 各銘柄の配当込みの月次リターン for POS
             [COLUMN]
                 DATE:
-                    TERM: 2000/01/01 - 2025/01/01
-                    FORMAT: YYYY-MM-DD
+                    TERM: 2013/01 - 2025/06
+                    FORMAT: YYYY-MM
+                TICKER:
+                    ティッカーコード
+                PRICE:
+                    株価
+                DIVIDENDS:
+                    各月配当
+                MONTHLY_RETURN:
+                    月次リターン
             [DESCRIPTION]
+                yfinanceから取得した各銘柄の株価と、配当込みの月次リターン
+                POS分析用(該当データに含まれる銘柄のprice data)
+                fill rate = 90.1%
             [SOURCE]
+                yfinance
             [ACQUISITION]
-                1. 
-            [REFERENCE]
+                1. get_price_data.ipynb を実行
             [UPDATE]
-                07042025
+                2025/07/07
+    - 1577b043-c0fb-46e7-8eb1-cf678acda511 / 日経POSデータ
+        [COLUMN]
+            DATE:
+                TERM: 2014/01 - 2025/06
+                FORMAT: "YYYY-MM"
+            TICKER:
+                ティッカーコード
+                str
+                外資系企業含む
+            TOTAL_SALES:
+                月次売上(円)
+                str
+        [DESCRIPTION]
+            日経POSデータ
+        [ACQUISITION]
+            1. AWS Athena
+            2. データソース: AwsDataCatalog
+                データベース: alternadata_report
+                テーブル: nikkei_3_0_202505_daily_ticker_all_transaction
+            3. SQL実行
+                ==============================
+                select
+                    date_format(date, '%Y-%m') as month,
+                    ticker_code,
+                    sum(sales) as total_sales
+                from nikkei_3_0_202505_daily_ticker_all_transaction 
+                group by
+                    ticker_code,
+                    date_format(date, '%Y-%m')
+                order by
+                    ticker_code,
+                    month;
+                ==============================
+        [UPDATE]
+            2025/07/05
+    - aba922ff-cef0-4bc7-8899-00fc08a14023 / クレジットカードデータ CCA
+        [COLUMN]
+            DATE:
+                TERM: 2013/01 - 2025/06
+                FORMAT: "YYYY-MM"
+            TICKER:
+                ティッカーコード
+                str
+                外資系企業含む
+            TOTAL_SALES:
+                月次売上(円)
+                str
+        [DESCRIPTION]
+            クレジットカードデータ (CCA)
+        [ACQUISITION]
+            1. AWS Athena
+            2. データソース: AwsDataCatalog
+                データベース: cca_warehouse
+                テーブル: cleansed_raw_2_7_24_all_fixed
+            3. SQL実行
+                ==============================
+                select
+                    date_format(date, '%Y-%m') as month,
+                    ticker_code,
+                    sum(sales) as total_sales
+                from cleansed_raw_2_7_24_all_fixed
+                group by
+                    ticker_code,
+                    date_format(date, '%Y-%m')
+                order by
+                    ticker_code,
+                    month;
+                ==============================
+        [UPDATE]
+            2025/07/07
+    - GTJPY3M_Govt_short-term_Treasury_yield / GTJPY3M Govt (3か月短期国債ジェネリック) の利回り
+        [COLUMN]
+            DATE:
+                TERM: 2010/01/04 - 2024/12/05
+                FORMAT: YYYY/MM/DD
+            PX_LAST: 
+                EXP: 最終価格 (ただし短期国債の利回りデータの場合、このカラムも利回りを示すことが多い)
+            YLD_YTM_MYLD: 
+                EXP: Mid Yield To Maturity (満期までの中間利回り、いわゆる「中値利回り」)
+            YTM_BID: 
+                Bid Yield To Maturity (満期までの買い気配利回り)
+        [DESCRIPTION]
+            GTJPY3M Govt (3か月短期国債ジェネリック) の利回り
+            取得した短期国債利回りは年率なので、ファクター分析に適用するためには月次ベースに直す必要がある >> 1/12乗根を取る
+        [SOURCE]
+            Bloomberg / Kibera
+        [ACQUISITION]
+            1. https://finatextgroup.kibe.la/notes/37281
+            2. 短期国債利回.xlsx リンク
+        [REFERENCE]
+            Kibera: https://finatextgroup.kibe.la/notes/37281
+        [UPDATE]
+            2025/07/04
+    - nme_R031.461815.20250704110210.01 / 過去のドル円レート
+        [COLUMN]
+            DATE:
+                TERM: 1973/01 - 2025/06
+                FORMAT: YYYY/MM
+            JPY/USD:
+                ドル円レート
+        [DESCRIPTION]
+            過去のドル円レート
+        [SOURCE]
+            日本銀行
+        [ACQUISITION]
+            1. https://www.boj.or.jp/statistics/market/forex/fxdaily/index.htm
+            2. 「時系列統計データ検索サイト」リンク
+            3. 外国為替相場状況 (月次)
+            4. (1) インターバンク相場
+            5. FM08'FXERM06 (東京市場　ドル・円　スポット　17時時点/月末)
+        [REFERENCE]
+            Kibera: https://finatextgroup.kibe.la/notes/37281
+        [UPDATE]
+            2025/07/04
 
 
+==================================================
+==================================================
 
 
-
-
-
-
-
-
-
-
-
-
-
-- PRIVATE / NowcastのVPNを経由して取得するデータ
+- PRIVATE / 過去に使用したサーバー上のデータ
     - Snowflake
         - DATAHUB_PROD
             - ER_WAGEINDEX
-                - PRODUCT_DATA_V3
-                    Hrog賃金Now (Hrogから作成した賃金・求人数の指数)
+                - PRODUCT_DATA_V3 / Hrog賃金Now (Hrogから作成した賃金・求人数の指数)
                     https://finatextgroup.slack.com/files/U08GYBH3S4E/F08S942R8FK/hrog______now_____________2024.10.pptx.pdf
                     https://finatextgroup.kibe.la/notes/35426
                     https://finatextgroup.kibe.la/notes/34169
                     前年同期比(後方4週移動平均)、前年同月比水準値(2017/2/13週＝100)
-
         - DATAHUB_CCA_DWH_PROD
             - RAW
-                - FACT_TRANSACTION_DAILY_FIXED
+                - FACT_TRANSACTION_DAILY_FIXED / CCA
                 - BRIDGE_BRAND_STORE_NAME_MAP_DAILY_FIXED
                 - BRIDGE_TICKER_COMPANY_BRAND
+    - AWS
+        - AwsDataCatalog
+            - cca_warehouse
+                - cleansed_raw_2_7_24_all_fixed / CCA (latest)
+            - alternadata_report
+                - nikkei_3_0_202505_daily_ticker_all_transaction / POS (latest)
