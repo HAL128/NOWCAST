@@ -1,4 +1,4 @@
-- DATAHUB
+- DATAHUB (../../DATAHUB)
     - Fama-French
         - F-F_Research_Data_Factors_daily / Fama-French ファクターリターン (日次)
             [COLUMN]
