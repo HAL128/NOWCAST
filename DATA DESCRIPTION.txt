@@ -303,6 +303,7 @@
                 ==============================
         [UPDATE]
             2025/07/07
+    - CCA_sales_4-1_factor / new
     - GTJPY3M_Govt_short-term_Treasury_yield / GTJPY3M Govt (3か月短期国債ジェネリック) の利回り
         [COLUMN]
             DATE:

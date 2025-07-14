@@ -192,7 +192,7 @@ def create_percentile_portfolio(df_yoy: pd.DataFrame, top_percentile: int, price
     weighted_returns = weights_common * returns_common
     returns = weighted_returns.sum(axis=1).dropna()
 
-    print_portfolio_stocks_and_value(date_percentiles, price_data, top_percentile)
+    # print_portfolio_stocks_and_value(date_percentiles, price_data, top_percentile)
     
     return returns
 
@@ -544,7 +544,7 @@ def plot_growth_rate(portfolio_returns: pd.DataFrame, percentile, monthly_return
 
 
 
-def get_nikkei_data():
+def get_nikkei_yoy():
     end_date = datetime.now()
 
     nikkei_data = yf.download('^N225', start='1900-01-01', end=end_date)
@@ -553,9 +553,12 @@ def get_nikkei_data():
     df_nikkei_monthly.index = pd.to_datetime(df_nikkei_monthly.index).strftime('%Y-%m')
 
     # カラム名を変更
-    df_nikkei_monthly.columns = ['NIKKEI_Close']
+    df_nikkei_monthly.columns = ['NIKKEI_YOY']
 
-    return df_nikkei_monthly
+    nikkei_yoy = df_nikkei_monthly.pct_change(12) * 100
+    nikkei_yoy = nikkei_yoy.dropna()
+
+    return nikkei_yoy
 
 
 
@@ -570,11 +573,14 @@ def get_topix_data():
     # 月次平均を計算
     topix_monthly = df_topix['Close'].resample('M').mean()
     topix_monthly.index = topix_monthly.index.strftime('%Y-%m')
+
+    topix_yoy = topix_monthly.pct_change(12) * 100
+    topix_yoy = topix_yoy.dropna()
     
     # DataFrameとして返す
-    df_topix_monthly = pd.DataFrame({'TOPIX_Close': topix_monthly})
+    df_topix_yoy = pd.DataFrame({'TOPIX_YOY': topix_yoy})
     
-    return df_topix_monthly
+    return df_topix_yoy
 
 
 
@@ -585,8 +591,13 @@ def compare_to_past_month(df_yoy: pd.DataFrame, value_col: str) -> pd.DataFrame:
     過去の月と比較する
     """
     for month in range(1, 13):
-    # 過去3ヶ月の平均との比較
-        df_yoy[f'prev_{month}_months_avg'] = df_yoy.groupby('TICKER')[value_col].rolling(window=month).mean().reset_index(0, drop=True)
+        if month == 1:
+            # 過去1ヶ月の場合は、1ヶ月前の値との比較
+            df_yoy[f'prev_{month}_months_avg'] = df_yoy.groupby('TICKER')[value_col].shift(1)
+        else:
+            # 過去2ヶ月以上の場合、rolling windowの平均との比較
+            df_yoy[f'prev_{month}_months_avg'] = df_yoy.groupby('TICKER')[value_col].rolling(window=month).mean().reset_index(0, drop=True)
+        
         df_yoy[f'COMPARE_PAST_{month}_MONTHS'] = df_yoy[value_col] - df_yoy[f'prev_{month}_months_avg']
 
         # nanの削除
@@ -648,6 +659,5 @@ def get_stock_price_data_from_yfinance(df: pd.DataFrame) -> pd.DataFrame:
     success_rate = (len(tickers) - len(failed_tickers)) / len(tickers)
     
     return price_data, success_rate
-
 
 
