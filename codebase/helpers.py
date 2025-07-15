@@ -20,7 +20,7 @@ warnings.filterwarnings('ignore')
 
 
 
-def filter_data_cca(df: pd.DataFrame, four_digit_ticker: bool = True, start_date: Optional[str] = None) -> pd.DataFrame:
+def filter_data_cca(df: pd.DataFrame, four_digit_ticker: bool = True, start_date: Optional[str] = None):
     """
     データを読み込み、4桁の数字のティッカーコードでフィルタリングする
     REQ COLS: DATE, TICKER
@@ -54,7 +54,7 @@ def filter_data_cca(df: pd.DataFrame, four_digit_ticker: bool = True, start_date
 
 
 
-def daily_to_monthly(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
+def daily_to_monthly(df: pd.DataFrame, value_col: str):
     """
     日次データを月次データに変換する
     REQ COLS: DATE, TICKER, value_col
@@ -80,7 +80,7 @@ def daily_to_monthly(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
 
 
 
-def calculate_yoy(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
+def calculate_yoy(df: pd.DataFrame, value_col: str):
     """
     YoYを計算する
     REQ COLS: MONTH, TICKER, value_col
@@ -107,7 +107,7 @@ def calculate_yoy(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
 
 
 
-def create_percentile_portfolio(df_yoy: pd.DataFrame, top_percentile: int, price_data: pd.DataFrame, col: str = 'YOY') -> pd.Series:
+def create_percentile_portfolio(df_yoy: pd.DataFrame, top_percentile: int, price_data: pd.DataFrame, col: str = 'YOY'):
     """
     パーセンタイルベースのポートフォリオを作成する
     """
@@ -611,7 +611,7 @@ def compare_to_past_month(df_yoy: pd.DataFrame, value_col: str) -> pd.DataFrame:
 
 
 
-def get_stock_price_data_from_yfinance(df: pd.DataFrame) -> pd.DataFrame:
+def get_stock_price_data_from_yfinance(df: pd.DataFrame):
     """
     yfinanceから株価データを取得する
     """

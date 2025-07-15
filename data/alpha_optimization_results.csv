@@ -1,8 +1,0 @@
-portfolio_combination,factor_combination,alpha_mean,alpha_std,r2_score,sample_size,portfolio_type,factor_count,factor_names
-"{'long_portfolio': 'top_25p', 'short_portfolio': 'top_100p', 'type': 'percentile_diff'}","['Market', 'SMB', 'HML']",1.2197274440461925e-18,0.010085134886089664,0.1631594241710449,32,percentile_diff,3,Market+SMB+HML
-"{'long_portfolio': 'top_25p', 'short_portfolio': 'top_100p', 'type': 'percentile_diff'}","['Market', 'HML']",4.336808689942018e-19,0.010965475830728771,0.010685734888872256,32,percentile_diff,2,Market+HML
-"{'long_portfolio': 'top_25p', 'short_portfolio': 'top_100p', 'type': 'percentile_diff'}",['HML'],3.7947076036992655e-19,0.011022227717644306,0.00041883124894859236,32,percentile_diff,1,HML
-"{'long_portfolio': 'top_25p', 'short_portfolio': 'top_100p', 'type': 'percentile_diff'}","['SMB', 'HML']",3.5236570605778894e-19,0.010217859304216537,0.1409881716866035,32,percentile_diff,2,SMB+HML
-"{'long_portfolio': 'top_25p', 'short_portfolio': 'top_100p', 'type': 'percentile_diff'}",['Market'],1.6263032587282567e-19,0.010985426313232856,0.007082562136987325,32,percentile_diff,1,Market
-"{'long_portfolio': 'top_25p', 'short_portfolio': 'top_100p', 'type': 'percentile_diff'}","['Market', 'SMB']",-3.5236570605778894e-19,0.010118243727504871,0.15765581870123624,32,percentile_diff,2,Market+SMB
-"{'long_portfolio': 'top_25p', 'short_portfolio': 'top_100p', 'type': 'percentile_diff'}",['SMB'],-4.87890977618477e-19,0.010311976495234338,0.12509049208454126,32,percentile_diff,1,SMB
