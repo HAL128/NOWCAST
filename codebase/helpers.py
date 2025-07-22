@@ -20,7 +20,7 @@ warnings.filterwarnings('ignore')
 
 
 
-def filter_data_cca(df: pd.DataFrame, four_digit_ticker: bool = True, start_date: Optional[str] = None):
+def filter_data_cca(df: pd.DataFrame, four_digit_ticker: bool = True, start_date: Optional[str] = None, end_date: Optional[str] = None):
     """
     データを読み込み、4桁の数字のティッカーコードでフィルタリングする
     REQ COLS: DATE, TICKER
@@ -35,14 +35,16 @@ def filter_data_cca(df: pd.DataFrame, four_digit_ticker: bool = True, start_date
             return False
     
         df_filtered = df_filtered[df_filtered['TICKER'].apply(is_four_digit_number)]
-
-    # 日付範囲でフィルタリング
-    end_date = datetime.now().strftime('%Y-%m-%d')
     
     df_filtered = df_filtered[df_filtered['DATE'] <= pd.to_datetime(end_date)]
 
     if start_date:
         df_filtered = df_filtered[df_filtered['DATE'] >= pd.to_datetime(start_date)]
+    if end_date:
+        df_filtered = df_filtered[df_filtered['DATE'] <= pd.to_datetime(end_date)]
+    else:
+        # 日付範囲でフィルタリング
+        end_date = datetime.now().strftime('%Y-%m-%d')
 
     # データサイズ
     print("original data:", len(df))
@@ -270,8 +272,7 @@ def create_multiple_portfolios_compare_past_month(df_yoy: pd.DataFrame, price_da
 
 def plot_portfolio_returns(portfolio_returns: pd.DataFrame, 
     market_neutral: bool = False,
-    title: str = 'Cumulative Return of Top Percentile Portfolios vs Equal Weight Portfolio',
-    y_max: int = 13
+    title: str = 'Cumulative Return of Top Percentile Portfolios vs Equal Weight Portfolio'
     ) -> None:
     """
     ポートフォリオリターンをプロットする
@@ -318,10 +319,6 @@ def plot_portfolio_returns(portfolio_returns: pd.DataFrame,
     plt.legend()
     plt.grid(True)
     plt.xticks(rotation=45)
-
-    # y軸の範囲を-2から12に固定し、目盛りを奇数のみに設定
-    plt.ylim(-1, y_max + 2)
-    plt.yticks([i for i in range(1, y_max + 2, 2)])
     plt.tight_layout()
     plt.show()
 
