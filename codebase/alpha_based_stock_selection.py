@@ -3,24 +3,18 @@ import pandas as pd
 import numpy as np
 import warnings
 warnings.filterwarnings('ignore')
-
-# helpers.pyから必要な関数をインポート
 from helpers import filter_data_cca, daily_to_monthly, calculate_yoy
 
-# データの読み込み
 ff_analysis = pd.read_csv('../data/ff_cca_three_factors_analysis.csv')
 three_factor_detailed = pd.read_csv('../data/three_factor_model_detailed.csv')
 
-#%%
-# データの前処理
 ff_analysis['Date'] = pd.to_datetime(ff_analysis['Date'])
 three_factor_detailed['DATE'] = pd.to_datetime(three_factor_detailed['DATE'])
 
 #%%
-# 動的ポートフォリオ構築関数（改善版）
 def build_dynamic_portfolio_improved(ff_data, lookback_period=6, base_stocks=67, 
                                    vol_factor_range=[0.7, 1.2], alpha_factor_range=[0.8, 1.3]):
-    """改善された動的ポートフォリオを構築する関数"""
+    """動的ポートフォリオを構築する関数"""
     portfolio_recommendations = []
     
     # 全期間の平均値を計算
@@ -30,12 +24,11 @@ def build_dynamic_portfolio_improved(ff_data, lookback_period=6, base_stocks=67,
     for i in range(lookback_period, len(ff_data)):
         current_date = ff_data.iloc[i]['Date']
         
-        # 過去のデータを取得
         recent_data = ff_data.iloc[i-lookback_period:i]
         recent_alpha = recent_data['Alpha'].mean()
         recent_alpha_vol = recent_data['Alpha'].std()
         
-        # 数学的に基づく銘柄数決定
+        # 銘柄数決定
         num_stocks = calculate_optimal_stock_count(
             recent_alpha, 
             recent_alpha_vol, 
@@ -48,7 +41,6 @@ def build_dynamic_portfolio_improved(ff_data, lookback_period=6, base_stocks=67,
             alpha_factor_range
         )
         
-        # 戦略分類の改善
         strategy = classify_strategy(recent_alpha, recent_alpha_vol, lookback_period)
         
         portfolio_recommendations.append({
@@ -66,7 +58,7 @@ def build_dynamic_portfolio_improved(ff_data, lookback_period=6, base_stocks=67,
 
 def calculate_optimal_stock_count(alpha, alpha_vol, base_stocks, lookback_period, 
                                  avg_alpha, avg_alpha_vol, base_stocks_param, vol_factor_range, alpha_factor_range):
-    """最適な銘柄数を計算する関数（スコア化版）"""
+    """最適な銘柄数を計算する関数"""
     
     # 全期間の平均値を基準とした正規化
     volatility_factor = 1 - (alpha_vol / avg_alpha_vol)
@@ -75,15 +67,12 @@ def calculate_optimal_stock_count(alpha, alpha_vol, base_stocks, lookback_period
     alpha_factor = 1 + (alpha / avg_alpha)
     alpha_factor = np.clip(alpha_factor, alpha_factor_range[0], alpha_factor_range[1])
     
-    # 組み合わせ調整係数（スコア）
     combined_factor = (volatility_factor + alpha_factor) / 2
-    
-    # 最終的な銘柄数計算（スコア × 基本銘柄数）
     optimal_stocks = int(base_stocks_param * combined_factor)
     
-    # 最小・最大制限（base_stocksの範囲内で制限）
-    min_stocks = max(5, int(base_stocks_param * 0.5))   # 最低50%
-    max_stocks = min(200, int(base_stocks_param * 1.5))  # 最高150%
+    # 最小・最大制限
+    min_stocks = max(5, int(base_stocks_param * 0.5))
+    max_stocks = min(200, int(base_stocks_param * 1.5))
     
     result = np.clip(optimal_stocks, min_stocks, max_stocks)
     
@@ -91,8 +80,7 @@ def calculate_optimal_stock_count(alpha, alpha_vol, base_stocks, lookback_period
 
 def classify_strategy(alpha, alpha_vol, lookback_period):
     """戦略を分類する関数"""
-    
-    # 複数の指標を組み合わせて戦略を決定
+
     alpha_score = alpha / 0.01  # αスコア
     volatility_score = 1 - (alpha_vol / 0.02)  # ボラティリティスコア（逆数）
     
@@ -317,13 +305,7 @@ def test_parameters_and_generate_dataframes():
 
 #%%
 # パラメータテストを実行
-print("パラメータテストを開始します...")
-results_df = test_parameters_and_generate_dataframes()
-
-print("\n=== テスト結果サマリー ===")
-print(f"生成されたファイル数: {len(results_df)}")
-print(f"平均銘柄数の範囲: {results_df['avg_stocks'].min():.2f} - {results_df['avg_stocks'].max():.2f}")
-print(f"出力ディレクトリ: ../data/output/")
+test_parameters_and_generate_dataframes()
 
 #%%
 # 累積リターン計算機能を追加
@@ -581,14 +563,7 @@ def test_parameters_and_calculate_returns():
 
 #%%
 # パラメータテストを実行（累積リターン計算版）
-print("パラメータテストを開始します（累積リターン計算版）...")
-results_df, best_result = test_parameters_and_calculate_returns()
-
-print("\n=== テスト結果サマリー ===")
-print(f"生成されたファイル数: {len(results_df)}")
-print(f"平均銘柄数の範囲: {results_df['avg_stocks'].min():.2f} - {results_df['avg_stocks'].max():.2f}")
-print(f"累積リターンの範囲: {results_df['cumulative_return'].min():.4f} - {results_df['cumulative_return'].max():.4f}")
-print(f"出力ディレクトリ: ../data/output/")
+test_parameters_and_calculate_returns()
 
 #%%
 # 最大リターンの組み合わせで累積リターンを可視化
@@ -746,62 +721,10 @@ def visualize_best_combination_returns():
     plt.ylabel('Monthly Return', fontsize=12)
     plt.grid(True, alpha=0.3)
     plt.xticks(rotation=45)
-    
-    # # 3. 銘柄数推移
-    # plt.subplot(3, 2, 3)
-    # plt.plot(returns_df['Date'], returns_df['Num_Stocks'], marker='s', color='orange')
-    # plt.title('Number of Stocks Over Time', fontsize=14)
-    # plt.xlabel('Date', fontsize=12)
-    # plt.ylabel('Number of Stocks', fontsize=12)
-    # plt.grid(True, alpha=0.3)
-    # plt.xticks(rotation=45)
-    
-    # # 4. 戦略分布
-    # plt.subplot(3, 2, 4)
-    # strategy_counts = returns_df['Strategy'].value_counts()
-    # plt.pie(strategy_counts.values, labels=strategy_counts.index, autopct='%1.1f%%')
-    # plt.title('Strategy Distribution', fontsize=14)
-    
-    # # 5. 安定性レベル分布
-    # plt.subplot(3, 2, 5)
-    # stability_counts = returns_df['Stability_Level'].value_counts()
-    # plt.pie(stability_counts.values, labels=stability_counts.index, autopct='%1.1f%%')
-    # plt.title('Stability Level Distribution', fontsize=14)
-    
-    # # 6. リターン分布
-    # plt.subplot(3, 2, 6)
-    # plt.hist(returns_df['Return'], bins=20, alpha=0.7, color='purple', edgecolor='black')
-    # plt.axvline(returns_df['Return'].mean(), color='red', linestyle='--', label=f'Mean: {returns_df["Return"].mean():.4f}')
-    # plt.title('Return Distribution', fontsize=14)
-    # plt.xlabel('Monthly Return', fontsize=12)
-    # plt.ylabel('Frequency', fontsize=12)
-    # plt.legend()
-    # plt.grid(True, alpha=0.3)
-    
-    # plt.tight_layout()
-    # plt.show()
-    
-    # 詳細統計
-    print(f"\n=== 詳細統計 ===")
-    print("月次リターン統計:")
-    print(f"  平均: {returns_df['Return'].mean():.4f}")
-    print(f"  標準偏差: {returns_df['Return'].std():.4f}")
-    print(f"  最大: {returns_df['Return'].max():.4f}")
-    print(f"  最小: {returns_df['Return'].min():.4f}")
-    print(f"  正のリターン月数: {(returns_df['Return'] > 0).sum()}")
-    print(f"  負のリターン月数: {(returns_df['Return'] < 0).sum()}")
-    
-    print("\n銘柄数統計:")
-    print(f"  平均: {returns_df['Num_Stocks'].mean():.1f}")
-    print(f"  標準偏差: {returns_df['Num_Stocks'].std():.1f}")
-    print(f"  最大: {returns_df['Num_Stocks'].max()}")
-    print(f"  最小: {returns_df['Num_Stocks'].min()}")
-    
-    # 結果をCSVで保存
-    returns_df.to_csv('../data/best_combination_returns.csv', index=False)
-    print(f"\n結果を保存しました: ../data/best_combination_returns.csv")
 
+    
 #%%
 # 最適パラメータで累積リターンを可視化
-print("最適パラメータで累積リターンを可視化します...")
 visualize_best_combination_returns()
+
+#%%

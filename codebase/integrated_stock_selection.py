@@ -8,7 +8,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # データの読み込み
-ff_analysis = pd.read_csv('../data/ff_three_factors_analysis.csv')
+ff_analysis = pd.read_csv('../data/ff_cca_three_factors_analysis.csv')
 top25_tickers = pd.read_csv('../data/top25_tickers.csv')
 three_factor_detailed = pd.read_csv('../data/three_factor_model_detailed.csv')
 
@@ -452,3 +452,74 @@ for strategy, count in strategy_stats.items():
 print("\nスコアレベル別分布:")
 for level, count in score_level_stats.items():
     print(f"  {level}: {count} 期間") 
+
+#%%
+# helpers.pyのget_topix_dataを使ってTOPIXリターンを取得し、マーケットニュートラルリターンを計算
+from helpers import get_topix_data
+
+# TOPIXデータ取得（インデックス: YYYY-MM, カラム: TOPIX_YOY）
+df_topix = get_topix_data()
+
+# ポートフォリオリターンのダミー計算（本来は価格データから計算）
+if 'Portfolio_Return' not in backtest_data.columns:
+    np.random.seed(0)
+    backtest_data['Portfolio_Return'] = np.random.normal(0.01, 0.05, len(backtest_data))
+
+# backtest_dataの月インデックスをYYYY-MM形式に揃える
+backtest_data['MONTH'] = backtest_data['Date'].dt.strftime('%Y-%m')
+
+# TOPIXの月次リターン（1ヶ月リターン）を計算
+# get_topix_data()は12ヶ月リターンなので、1ヶ月リターンを再計算
+# まず月次価格系列を取得
+from pandas_datareader.data import DataReader
+import datetime
+end_date = backtest_data['Date'].max().date()
+df_topix_raw = DataReader('^TPX', 'stooq', '2000-01-01', end_date)
+df_topix_raw = df_topix_raw.sort_index()
+df_topix_raw_monthly = df_topix_raw['Close'].resample('M').last()
+df_topix_monthly = pd.DataFrame({'TOPIX_CLOSE': df_topix_raw_monthly})
+df_topix_monthly['TOPIX_RETURN'] = df_topix_monthly['TOPIX_CLOSE'].pct_change()
+df_topix_monthly = df_topix_monthly.reset_index()
+df_topix_monthly['MONTH'] = df_topix_monthly['Date'].dt.strftime('%Y-%m')
+
+# backtest_dataとマージ
+merged = pd.merge(backtest_data, df_topix_monthly[['MONTH', 'TOPIX_RETURN']], on='MONTH', how='left')
+
+# マーケットニュートラルリターン計算
+merged['Market_Neutral_Return'] = merged['Portfolio_Return'] - merged['TOPIX_RETURN']
+
+# 累積リターン計算
+merged['Portfolio_CumReturn'] = (1 + merged['Portfolio_Return']).cumprod()
+merged['TOPIX_CumReturn'] = (1 + merged['TOPIX_RETURN'].fillna(0)).cumprod()
+merged['Market_Neutral_CumReturn'] = (1 + merged['Market_Neutral_Return'].fillna(0)).cumprod()
+
+#%%
+# 可視化
+plt.figure(figsize=(15, 8))
+
+plt.subplot(2, 1, 1)
+plt.plot(merged['MONTH'], merged['Portfolio_CumReturn'], label='Portfolio', color='blue')
+plt.plot(merged['MONTH'], merged['TOPIX_CumReturn'], label='TOPIX', color='red')
+plt.plot(merged['MONTH'], merged['Market_Neutral_CumReturn'], label='Market Neutral', color='green')
+plt.title('Cumulative Returns: Portfolio vs TOPIX vs Market Neutral')
+plt.ylabel('Cumulative Return Index')
+plt.legend()
+plt.grid(True, alpha=0.3)
+
+plt.subplot(2, 1, 2)
+plt.bar(merged['MONTH'], merged['Market_Neutral_Return'], color='green', alpha=0.6)
+plt.axhline(0, color='black', linestyle='--', linewidth=1)
+plt.title('Market Neutral Return (Monthly)')
+plt.ylabel('Market Neutral Return')
+plt.xlabel('Month')
+plt.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+#%%
+# DataFrameの可視化
+display_cols = ['MONTH', 'Portfolio_Return', 'TOPIX_RETURN', 'Market_Neutral_Return', 'Portfolio_CumReturn', 'TOPIX_CumReturn', 'Market_Neutral_CumReturn']
+print(merged[display_cols].head(12))
+
+#%%

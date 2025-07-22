@@ -35,8 +35,6 @@ def filter_data_cca(df: pd.DataFrame, four_digit_ticker: bool = True, start_date
             return False
     
         df_filtered = df_filtered[df_filtered['TICKER'].apply(is_four_digit_number)]
-    
-    df_filtered = df_filtered[df_filtered['DATE'] <= pd.to_datetime(end_date)]
 
     if start_date:
         df_filtered = df_filtered[df_filtered['DATE'] >= pd.to_datetime(start_date)]
